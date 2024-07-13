@@ -4,5 +4,6 @@ IF [%1]==[] (
     exit /b 1
 )
 gcc %~1.c -o /dist/%~1
-echo Successfully compiled. Executing %~1.exe...
+echo Successfully compiled.
+echo Executing %~1.exe...
 /dist/%~1.exe

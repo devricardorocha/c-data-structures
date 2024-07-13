@@ -59,9 +59,7 @@ int binarySearch(List* list, int value) {
         middle = ((left+right)/2);
         if (list->a[middle].key < value)
             left = middle+1;
-        else if (list->a[middle].key > value) 
-            right=middle-1;
-        else if (left != middle) 
+        else if (list->a[middle].key > value || (list->a[middle].key == list->a[middle-1].key && left != middle)) 
             right=middle-1;
         else
             return middle;
@@ -83,25 +81,13 @@ void printResult(int (*search)(List*, int), List* list, Record record) {
 
 }
 
-// Bloco de código que executa o teste (reaproveitável)
-void executeTestOverList(int testNumber, List* list) {
-    Record record;
-    record.key = rand() % MAX;
-    printf("Test number %i: \n", testNumber);
-    printf("Binary -> ");
-    printResult(binarySearch, list, record);
-    printf("Sequential -> ");
-    printResult(linearSearch, list, record);
-    printf("\n");
-}
-
 // Carregar itens na lista
-bool fillList(List* list) {
+bool fillList(List* list, int roof) {
     int i=0;
-    while (i < MAX) {
+    while (i < roof) {
         i++;
         Record record;
-        record.key = rand() % MAX;
+        record.key = rand() % roof;
         if (!addRecordOrderedByKeyAsc(list, record)) {
             printf("Failed to add element to list\n");
             return false;
@@ -114,23 +100,100 @@ bool fillList(List* list) {
 // Imprima a lista carregada no CMD
 void printList(List* list) {
     printf("List (%i): \"[", list->size);
-    for (int i=0;i < list->size; i++)
+    for (int i=0;i < list->size-1; i++) {
         printf("%i, ", list->a[i].key);
-    printf("]\"\n");
+    }
+    printf("%i]\"\n", list->a[list->size-1].key);
 }
 
-int main() {
+// Bloco de código que executa o teste (reaproveitável)
+void runSearchSpeedTest(int testNumber, Record record, List* list) {
+    printf("Test number %i: \n", testNumber);
+    printf("Binary -> ");
+    printResult(binarySearch, list, record);
+    printf("Sequential -> ");
+    printResult(linearSearch, list, record);
+    printf("\n");
+}
+
+// Cria um usuário aleatório e executa o teste
+void runRandomRecordSearchSpeedTest(int testNumber, int roof, List* list) {
+    Record record;
+    record.key = rand() % roof;
+    runSearchSpeedTest(testNumber, record, list);
+}
+
+// Testes de performance dos algoritmos - INICIO
+void runSearchSpeedTestLoop() {
+
+    printf("\nRunning speed tests: \n");
+
+    int roof = 10;
+    while (roof <= MAX) {
+        List list;
+        init(&list);
+        printf("\nTest lists with size %i:\n", roof);
+        if (fillList(&list, roof)) {
+            printList(&list);
+            
+            Record record;
+            record.key = 1;
+            runSearchSpeedTest(0, record, &list);
+            runRandomRecordSearchSpeedTest(1, roof, &list);
+            runRandomRecordSearchSpeedTest(2, roof, &list);
+            runRandomRecordSearchSpeedTest(3, roof, &list);
+        }
+
+        roof *= 10;
+    }
+}
+// Testes de performance dos algoritmos - FIM
+
+// Testes unitários dos algoritmos - INICIO
+bool testListWithSize(int size) {
 
     List list;
     init(&list);
 
-    if (fillList(&list)) {
-        printList(&list);
-        executeTestOverList(1, &list);
-        executeTestOverList(2, &list);
-        executeTestOverList(3, &list);
+    for (int i=0; i < size; i++) {
+        Record record;
+        record.key = i+1;
+        addRecordOrderedByKeyAsc(&list, record);
     }
 
-    printf("End of tests");
+    for (int i=0; i < size; i++) {
+        if (binarySearch(&list, i+1) != i) return false;
+        if (linearSearch(&list, i+1) != i) return false;
+    }
+
+    if (binarySearch(&list, size+1) != -1) return false;
+    if (linearSearch(&list, size+1) != -1) return false;
+
+    printf("Passed test with list size %i\n", size);
+    return true;
+}
+
+bool runSearchValidationTest() {
+    
+    printf("\nRunning validation tests: \n");
+
+    if(!testListWithSize(0)) return false;
+    if(!testListWithSize(1)) return false;
+    if(!testListWithSize(2)) return false;
+    if(!testListWithSize(3)) return false;
+
+    return true;
+}
+// Testes unitários dos algoritmos - FIM
+
+int main() {
+   
+    if (runSearchValidationTest())
+        runSearchSpeedTestLoop();
+    else 
+        printf("Validation test failed\n");
+
+    printf("End of tests\n");
     return 0;
+ 
 }
