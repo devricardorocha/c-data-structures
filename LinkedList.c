@@ -6,18 +6,18 @@ typedef struct {
     int key;
 } Record;
 
-typedef struct {
+typedef struct LinkedListElement2 {
     Record current;
-    LinkedListElement next;
+    struct LinkedListElement2* next;
 } LinkedListElement;
 
 typedef struct {
-    int size = 0;
+    int size;
     LinkedListElement first;
     LinkedListElement last;
 } LinkedList;
 
-bool add(LinkedList* list, Record* record) {
+bool add(LinkedList* list, Record record) {
 
     LinkedListElement newLast;
     newLast.current = record;
@@ -56,11 +56,11 @@ int main() {
 
     Record record1;
     record1.key = 1;
-    add(&linkedList, &record1);
+    add(&linkedList, record1);
 
     Record record2;
     record2.key = 2;
-    add(&linkedList, &record2);
+    add(&linkedList, record2);
 
     printList(%linkedList);
 
