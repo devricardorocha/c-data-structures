@@ -1,68 +1,38 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define MAX 50
+#define INVALID -1
+
 // Registro que vai ser o elemento da lista
 typedef struct {
     int key;
 } Record;
 
-typedef struct LinkedListElement2 {
-    Record current;
-    struct LinkedListElement2* next;
+typedef struct {
+    Record record;
+    int next;
 } LinkedListElement;
 
 typedef struct {
-    int size;
-    LinkedListElement first;
-    LinkedListElement last;
+    LinkedListElement a[MAX];
+    int first;
+    int avaliable;
 } LinkedList;
 
-bool add(LinkedList* list, Record record) {
-
-    LinkedListElement newLast;
-    newLast.current = record;
-
-    if (list->first == NULL)
-        list->first = newLast;
-
-    LinkedListElement currentLast = list->last;
-    currentLast.next = newLast;
-
-    list->last = newLast;
-    list->size++;
-
-    return true;
-}
-
-bool hasNext(LinkedListElement* element) {
-    return element->next != NULL;
-}
-
-void printList(LinkedList* list) {
-
-    LinkedListElement currentEl = list->first;
-    while (currentEl != NULL) {
-
-        printf(" %i ", currentEl.current.key);
-        currentEl = currentEl.next;
-
-    }
-
+void init(LinkedList* list) {
+    int i;
+    for (i=0; i < MAX-1; i++)
+        list->a[i].next = i + 1;
+    list->a[MAX-1].next=INVALID;
+    list->first=INVALID;
+    list->avaliable=0;
 }
 
 int main() {
 
     LinkedList linkedList;
-
-    Record record1;
-    record1.key = 1;
-    add(&linkedList, record1);
-
-    Record record2;
-    record2.key = 2;
-    add(&linkedList, record2);
-
-    printList(%linkedList);
+    init(linkedList);
 
     return 0;
 }
